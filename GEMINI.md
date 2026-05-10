@@ -30,6 +30,8 @@ Project rules:
 
 - **Data Structure:** Use a **1D Flat Array** for all grid state. Do not refactor to 2D arrays or nested objects.
 - **Layout:** Use **CSS Grid** for the board. Avoid `<table>` or float-based layouts.
+- **Modules:** Use **ES Modules** (native `import`/`export`). Maintain `"type": "module"` in `package.json`.
+- **Testing:** Use the **Node.js native test runner** (`node --test`) for unit tests. Avoid adding heavy test frameworks like Jest or Vitest unless requested.
 - **Performance:** Target 60fps for "Liquid" animations. Use `will-change: transform` only during active animation cycles.
 - **Phase Integrity:** Strictly follow the split between logical expansion (Phase 3A) and animation orchestration (Phase 3B). Verify recursion logic passes unit tests before introducing timing-based animations.
 

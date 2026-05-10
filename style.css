@@ -1,0 +1,16 @@
+:root {
+    --cols: 9;
+    --rows: 9;
+    --tile-size: 32px;
+}
+
+#game-board {
+    display: grid;
+    grid-template-columns: repeat(var(--cols), var(--tile-size));
+    grid-template-rows: repeat(var(--rows), var(--tile-size));
+    gap: 2px;
+    background-color: #eee;
+    padding: 2px;
+    width: fit-content;
+    margin: 20px auto;
+}
