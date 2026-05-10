@@ -1,92 +1,70 @@
-# Functional Requirements Document: Modern Minimalist Minesweeper
-
-This document outlines the final technical and functional specifications for the Modern Minimalist Minesweeper web application, incorporating the Senior Architect audit and UX refinements.
-
----
+# REQUIREMENTS.md: PXL Sweep
 
 ## 1. Project Overview
-A high-stakes, single-page web application (SPA) focused on a clean, "Zen" aesthetic paired with uncompromising "Hardcore" mechanics. The goal is a distraction-free experience that rewards precision and speed.
+A high-stakes, single-page web app Minesweeper clone focused on modern aesthetics and hardcore gameplay. The goal is a distraction-free, high-fidelity experience that balances "Zen" visuals with uncompromising mechanics.
 
----
+## 2. Player Goal
+The player must reveal all tiles on a grid that do not contain a naval mine. Success is achieved when the number of hidden tiles exactly matches the number of mines programmed into the level. Victory is determined by tile state, not flag placement.
 
-## 2. Functional Requirements
+## 3. The Game Loop
+1.  **Initialization:** The board is generated with a randomized mine distribution immediately upon load.
+2.  **Interaction:** The player selects a tile to reveal or flag.
+3.  **Evaluation:**
+    * If a **Mine** is revealed: The game ends immediately (**Defeat**). All mines ripple-reveal.
+    * If a **Number** is revealed: The player uses that hint to deduce surrounding mines.
+    * If an **Empty Space** is revealed: A "liquid" recursive reveal clears the surrounding safe area.
+4.  **Conclusion:** The loop repeats until the win condition is met or a mine explodes.
 
-### 2.1 Gameplay Logic
-* **Hardcore Start:** The minefield is generated entirely at random upon page load. No safety logic exists for the first click; hitting a mine on the first move results in an immediate Game Over.
-* **Chording:**
-    * If a revealed number tile is clicked and its adjacent flags match its number, all surrounding non-flagged tiles are revealed.
-    * **Failure State:** If adjacent flags are placed incorrectly, chording triggers a Game Over for the misidentified safe tiles.
-* **Win Condition:** Success is achieved when `RevealedTiles == (TotalTiles - MineCount)`. Flagging all mines is encouraged but not required for victory.
-* **Difficulty Toggles:**
+## 4. In-Scope Features
+### 4.1 Core Mechanics
+* **Hardcore Start:** No safety net. First-click death is enabled; the grid is generated before the first interaction.
+* **Chording:** Clicking a revealed number clears surrounding tiles if adjacent flags match the number.
+    * **Failure State:** Incorrect flags trigger a Game Over upon chording.
+* **Difficulty Presets:**
     * **Beginner:** 9 x 9 (10 mines)
     * **Intermediate:** 16 x 16 (40 mines)
     * **Expert:** 30 x 16 (99 mines)
 
-### 2.2 User Interaction
-* **Input Hierarchy:**
-    * **Desktop:** Left-click to reveal; Right-click to flag. Right-click always flags regardless of toggle state.
-    * **Mobile/Touch:** A dedicated **Flag Mode** toggle. When active, primary taps place flags.
-* **Feedback:** The board border shifts color (e.g., to an indigo accent) when Flag Mode is active.
-* **Quick Restart:** Instant board reset via "Spacebar," "R" key, or a long-press on the reset button.
+### 4.2 Visuals & UX
+* **Theme:** Modern Minimalism. Flat colors, no beveled edges, high-contrast typography.
+* **Liquid Animations:** Tiles scale-pop (0 to 1) with a staggered delay based on Chebyshev distance from click.
+    * **Animation Cap:** After 15 waves, remaining tiles trigger simultaneously to maintain performance.
+* **Assets:** Classic black naval mine vector icon.
+* **Responsive UI:** Dedicated "Flag Mode" toggle for touch users; border shifts color when active.
 
----
+### 4.3 Technical Features
+* **Persistence:** `localStorage` using a structured JSON schema for Personal Bests and attempts.
+* **GPU Acceleration:** Use of `will-change: transform` for 60fps animations.
 
-## 3. User Interface & UX
+## 5. Out-of-Scope Features
+* **No-Guess Boards:** Boards may require 50/50 guesses (v2 feature).
+* **Sound Design:** The game is strictly silent.
+* **Global Leaderboards:** Local stats only.
+* **Themes:** No custom skins or Dark Mode in MVP.
 
-### 3.1 Aesthetics
-* **Minimalism:** Flat design, no beveled edges, high-contrast sans-serif typography.
-* **The Mine:** A classic black Naval Mine vector icon.
-* **Color Palette:**
-    * **Background:** White/Light Gray.
-    * **Numbers:** Distinct luminosities for each number (1–8) to ensure accessibility for color-blind users.
-    * **GPU Acceleration:** Use `will-change: transform;` for all tiles to ensure 60fps animations.
+## 6. Control Scheme
+| Action | Desktop (Mouse/KB) | Mobile (Touch) |
+| :--- | :--- | :--- |
+| **Reveal Tile** | Left-Click | Tap (Flag Toggle OFF) |
+| **Flag Tile** | Right-Click | Tap (Flag Toggle ON) |
+| **Chord** | Left-Click (on number) | Tap (on number) |
+| **Quick Restart** | Spacebar or R key | Long-press Reset Button |
 
-### 3.2 Liquid Animations
-* **Staggered Reveal:** Tiles scale-pop (0 to 1) when revealed.
-* **Ripple Logic:** Delay is calculated based on Chebyshev distance from the click source.
-* **Animation Cap:** If a reveal chain exceeds 15 steps (Waves), all remaining tiles trigger simultaneously to prevent excessive wait times on larger boards.
+*Note: Right-click always flags on desktop regardless of toggle state.*
 
----
+## 7. Technical Architecture
+* **State Management:** 1D Flat Array of objects.
+    * States: `0: HIDDEN`, `1: REVEALED`, `2: FLAGGED`, `3: EXPLODED`.
+* **Coordinate Mapping:** `x = index % width`; `y = floor(index / width)`.
+* **Algorithm:** Recursive flood-fill with depth-based `setTimeout` or RequestAnimationFrame queue.
 
-## 4. Technical Architecture
+## 8. Browser Assumptions
+* Modern Chromium, WebKit, or Gecko browsers.
+* Support for CSS Grid, CSS Variables, and `localStorage`.
 
-### 4.1 State Management
-The board is managed as a **Flat Array (1D)** of objects for easier coordinate mapping and distance calculation.
-* **Tile States:** `0: HIDDEN`, `1: REVEALED`, `2: FLAGGED`, `3: EXPLODED`.
-* **Coordinate Mapping:**
-    * x = index % width
-    * y = floor(index / width)
-
-### 4.2 Persistence (localStorage)
-Data is stored as a structured JSON object to allow for future statistical tracking.
-
-```json
-{
-  "version": "1.0",
-  "stats": {
-    "beginner": { "bestTime": 0, "gamesWon": 0, "totalAttempts": 0 },
-    "intermediate": { "bestTime": 0, "gamesWon": 0, "totalAttempts": 0 },
-    "expert": { "bestTime": 0, "gamesWon": 0, "totalAttempts": 0 }
-  },
-  "settings": { "highContrast": false }
-}
-```
-
-### 4.3 Styling Guide (CSS Variables)
-```css
-:root {
-  --bg-main: #ffffff;
-  --tile-hidden: #e2e8f0;
-  --tile-revealed: #f8fafc;
-  --accent-active: #3b82f6; /* Flag Mode indicator */
-  --mine-dark: #1e293b;
-  --font-main: 'Inter', sans-serif;
-}
-```
-
----
-
-## 5. Future Roadmap
-* **No-Guess Generation:** Optional mode ensuring every board is solvable via pure logic.
-* **Dark Mode:** Alternate color variable set for night-time play.
-* **Global Best:** Cloud-synced leaderboards.
+## 9. Acceptance Criteria
+* **AC 1:** First click can hit a mine.
+* **AC 2:** Empty areas clear with a "liquid" staggered animation.
+* **AC 3:** Faulty chording results in immediate Game Over.
+* **AC 4:** Personal Bests persist across sessions.
+* **AC 5:** Fully functional on mobile viewports via Flag Toggle.
