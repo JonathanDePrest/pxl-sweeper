@@ -1,188 +1,214 @@
-Create a complete @IMPLEMENTATION_PLAN.md document for this project. DO NOT START IMPLEMENTATION!! ONLY CREATE THE DOCUMENT!!
+# Implementation Plan - PXL Sweeper
 
-Context:
-- Project name: [PXL SWEEPER]
-- Project type: [SCHOOL PROJECT]
-- Goal: [SHORT PRODUCT]
-- Constraints: [TEAM / PLATFORM CONSTRAINTS]
-- Existing documents available: [REQUIREMENTS.md]
-- Deployment target: [STATIC HOST]
-- Risk tolerance: [MEDIUM]
+## Overview
+PXL Sweeper is a modern, minimalist Minesweeper clone with "Hardcore" mechanics (first-click death) and high-fidelity "Liquid" animations. This plan outlines a sequential path from core grid logic to a polished, responsive web application.
 
-Task:
-Write the full contents of `IMPLEMENTATION_PLAN.md` in Markdown.
+## Assumptions
+- The project is a static site (HTML/CSS/JS).
+- Modern browser support (ES Modules, CSS Grid, LocalStorage) is sufficient.
+- "Hardcore" start means no special handling for the first click; it is generated before user interaction.
+- The 15-wave animation cap is necessary for performance on Expert (30x16) boards.
 
-Output rules:
-- Output only the final Markdown for `IMPLEMENTATION_PLAN.md`.
-- Do not output commentary about your process.
-- Do not output a template explanation.
-- Do not number document headings.
-- Use clear Markdown headings.
-- Use phase-driven planning, not a flat task list.
+## Delivery strategy
+This plan uses a **hybrid** approach:
+- **Vertical Slices** for core gameplay (Logic -> UI -> Animation) to ensure high-risk mechanics are validated early.
+- **Layered Implementation** for secondary features like Persistence and Difficulty presets.
+- **Risk Isolation**: Decouples recursive logic from animation orchestration to prevent "Phase Bloat".
 
-Planning rules:
-- Organize the work into sequential phases.
-- Each phase must have exactly one primary goal.
-- Each phase must end in a reviewable state.
-- Order phases by dependency.
-- If a phase is too large for one review cycle, split it before finalizing the plan.
-- Prefer thin vertical slices where practical.
-- Separate risky refactors, infrastructure changes, migrations, and deployment changes into their own phases.
-- Include deployment or release phases only if relevant.
-- Include a final stabilization and review phase.
-- Do not invent major features or systems not implied by the context.
-- If information is missing, make the smallest reasonable assumption and record it under `Assumptions`.
-- If information is missing and sequencing depends on it, record it under `Open questions` or as a blocker inside the relevant phase.
+## Phase list
+- **Phase 1: Project Foundation & Grid Engine**: Establish 1D array mapping, DOM structure, and basic board state.
+- **Phase 2: Hardcore Gameplay Core**: Implement mine generation and immediate reveal/death logic.
+- **Phase 3A: Instant Flood Fill**: Build the logical recursive expansion and win condition validation.
+- **Phase 3B: Ripple Orchestration**: Apply the staggered Chebyshev distance-based animation layer.
+- **Phase 4: Input & Chording System**: Implement Desktop/Mobile controls and robust chording validation.
+- **Phase 5: Persistence & UI Refinement**: Add LocalStorage stats, High Contrast stubs, and final aesthetics.
+- **Phase 6: Stabilization & Final Review**: Bug fixing and requirement verification.
 
-Required top-level sections:
-- Overview
-- Assumptions
-- Delivery strategy
-- Phase list
-- Detailed phases
-- Dependency notes
-- Review policy
-- Definition of done for the plan
-- Open questions
+## Detailed phases
 
-Requirements for `Delivery strategy`:
-- State whether the plan uses vertical slices, layered implementation, or a hybrid.
-- Briefly justify the choice.
-- State why this strategy fits the project type and review cadence.
+### Phase 1: Project Foundation & Grid Engine
+**Goal**: Establish the foundational data structures, coordinate mapping, and core DOM structure.
+**Scope**: Boilerplate setup, 1D array initialization, mapping functions, and CSS Grid container definition.
+**Expected files to change**:
+- `package.json`
+- `index.html`
+- `style.css`
+- `js/constants.js`
+- `js/engine.js`
+- `js/engine.test.js`
+**Dependencies**: None.
+**Risks**: Low.
+**Tests and checks to run**:
+- `npm test` (Unit tests for index-to-coordinate mapping).
+- `npm run lint`
+**Review check before moving work to `DONE.md`**:
+- Confirm 1D array approach is used.
+- Verify CSS Grid container is defined in `index.html` to avoid later layout rework.
+**Exact `TODO.md` entries to refresh from this phase**:
+- [ ] Initialize `package.json` with test scripts.
+- [ ] Create `js/constants.js` with grid dimensions for Beginner, Intermediate, Expert.
+- [ ] Implement `indexToXY` and `XYToIndex` in `js/engine.js`.
+- [ ] Define main `#game-board` CSS Grid structure in `index.html` and `style.css`.
+- [ ] Add unit tests for mapping logic in `js/engine.test.js`.
+**Exit criteria for moving items to `DONE.md`**:
+- `js/engine.js` contains verified mapping functions.
+- `index.html` has a static grid container ready for dynamic tile insertion.
 
-Requirements for `Phase list`:
-- Provide a short list of all phases in order.
-- Give each phase a stable identifier, such as `Phase 1`, `Phase 2`, and so on.
-- Each phase title must describe the primary outcome, not a vague activity.
+### Phase 2: Hardcore Gameplay Core
+**Goal**: Implement randomized mine placement and immediate interaction logic.
+**Scope**: Mine distribution, neighbor counting, and basic "Hardcore" reveal (first click can die).
+**Expected files to change**:
+- `js/engine.js`
+- `js/engine.test.js`
+- `js/ui.js`
+**Dependencies**: Phase 1.
+**Risks**: Medium. Ensuring mine distribution is truly random.
+**Tests and checks to run**:
+- `npm test` (Validate mine counts and neighbor calculation).
+- Manual smoke test: Click a tile and verify it reveals its state correctly.
+**Review check before moving work to `DONE.md`**:
+- Confirm first-click death is possible (no safety net).
+**Exact `TODO.md` entries to refresh from this phase**:
+- [ ] Implement `generateMines(difficulty)` with random distribution.
+- [ ] Implement `calculateNeighbors()` for all tiles.
+- [ ] Create basic `revealTile(index)` logic that triggers Game Over on mine.
+- [ ] Build `js/ui.js` to dynamically inject tiles into the CSS Grid.
+- [ ] Verify "Hardcore Start" by ensuring mines are placed BEFORE the first interaction.
+**Exit criteria for moving items to `DONE.md`**:
+- Grid can be generated and rendered.
+- Clicking a mine ends the game immediately.
 
-For each phase, include these sections exactly:
-- Goal
-- Scope
-- Expected files to change
-- Dependencies
-- Risks
-- Tests and checks to run
-- Review check before moving work to `DONE.md`
-- Exact `TODO.md` entries to refresh from this phase
-- Exit criteria for moving items to `DONE.md`
+### Phase 3A: Instant Flood Fill
+**Goal**: Implement the logical recursive expansion and win condition.
+**Scope**: Recursive reveal for empty tiles (instant reveal without animation) and game state management (Win/Loss).
+**Expected files to change**:
+- `js/engine.js`
+- `js/engine.test.js`
+**Dependencies**: Phase 2.
+**Risks**: Medium. Potential call-stack overflow from deep recursion on Expert boards.
+**Tests and checks to run**:
+- `npm test` (Verify recursive expansion reveals the correct number of tiles).
+- Unit test: "Winning the game" when all non-mine tiles are revealed.
+**Review check before moving work to `DONE.md`**:
+- Confirm recursion logic is decoupled from any UI timing/delays.
+**Exact `TODO.md` entries to refresh from this phase**:
+- [ ] Implement recursive `floodFill(index)` in `js/engine.js`.
+- [ ] Implement `checkWinCondition()` logic.
+- [ ] Add unit tests for large area clears on an Expert-sized mock grid.
+**Exit criteria for moving items to `DONE.md`**:
+- Logic correctly identifies all safe tiles connected to an empty space.
+- Win condition is triggered when exactly `TotalTiles - MineCount` are revealed.
 
-Requirements for phase design:
-- Each phase must focus on one primary deliverable.
-- Each phase must be small enough for one review cycle under the stated review cadence.
-- Do not hide multiple large deliverables inside one phase.
-- Call out parallelizable work only if it is truly independent.
-- Do not use a generic "polish" phase to hide unfinished core work.
-- If a research spike or decision is required before implementation can proceed safely, create a dedicated phase for it.
+### Phase 3B: Ripple Orchestration
+**Goal**: Apply the "Liquid" staggered animation layer to the reveal logic.
+**Scope**: Chebyshev distance-based animation queue and the 15-wave animation cap.
+**Expected files to change**:
+- `js/ui.js`
+- `style.css`
+**Dependencies**: Phase 3A.
+**Risks**: High. Performance on Expert boards.
+**Tests and checks to run**:
+- Manual UX check: Verify "Liquid" ripple starts from click source.
+- Performance check: Reveal large area and ensure 60fps.
+- Mock Test: Tiles at distance > 15 must have 0ms animation delay.
+**Review check before moving work to `DONE.md`**:
+- Verify `will-change: transform` is used efficiently.
+- Confirm animation cap triggers correctly.
+**Exact `TODO.md` entries to refresh from this phase**:
+- [ ] Implement `getChebyshevDistance(origin, target)` helper.
+- [ ] Create `animateRevealQueue()` to stagger tile pops based on distance.
+- [ ] Add CSS transitions/animations for the "pop" effect.
+- [ ] Implement the 15-wave animation cap (stagger ends, remaining reveal instantly).
+- [ ] Verify `will-change` is applied only during active animation cycles.
+**Exit criteria for moving items to `DONE.md`**:
+- Empty tiles trigger a staggered ripple reveal.
+- Performance remains stable on all board sizes.
 
-Requirements for `Expected files to change`:
-- Be concrete.
-- List likely files, folders, or document names.
-- If exact names are unknown, give the most likely path patterns.
-- Include source files, tests, docs, config, CI, scripts, deployment files, and migration files when relevant.
-- Do not use vague placeholders like "various files" or "app code".
+### Phase 4: Input & Chording System
+**Goal**: Implement robust desktop/mobile controls and chording validation.
+**Scope**: Right-click to flag, Flag Toggle for mobile, and advanced chording logic.
+**Expected files to change**:
+- `js/ui.js`
+- `js/engine.js`
+**Dependencies**: Phase 3B.
+**Risks**: Medium.
+**Tests and checks to run**:
+- Manual UX check: Chording with correct/incorrect/excessive flags.
+- Unit test: Chording logic handles all edge cases.
+**Review check before moving work to `DONE.md`**:
+- Confirm right-click always flags.
+- Verify chording on a number with *too many* flags triggers Game Over.
+**Exact `TODO.md` entries to refresh from this phase**:
+- [ ] Add Right-click event listener for flagging.
+- [ ] Implement "Flag Mode" toggle and border color shift.
+- [ ] Implement chording logic in `js/engine.js`.
+- [ ] Add specific test case: Chording with excessive flags = Game Over.
+- [ ] Add specific test case: Chording with correct flags = Reveal neighbors.
+**Exit criteria for moving items to `DONE.md`**:
+- Full control scheme functional on desktop and mobile.
 
-Requirements for `Dependencies`:
-- List both upstream dependencies and intra-project dependencies.
-- State what must already exist before the phase begins.
-- Identify blockers caused by unresolved decisions.
-- State whether the phase depends on completion of a specific earlier phase.
+### Phase 5: Persistence & UI Refinement
+**Goal**: Finalize minimalist aesthetics and implement stats tracking.
+**Scope**: LocalStorage, Difficulty selection, High Contrast stub, and final CSS.
+**Expected files to change**:
+- `js/storage.js`
+- `js/ui.js`
+- `style.css`
+- `index.html`
+**Dependencies**: Phase 4.
+**Risks**: Low.
+**Tests and checks to run**:
+- Manual check: Personal bests persist after refresh.
+- Accessibility check: Number color luminosities.
+**Review check before moving work to `DONE.md`**:
+- Verify minimalist style (no beveled edges).
+- Confirm High Contrast setting is stubbed in `localStorage` for future-proofing.
+**Exact `TODO.md` entries to refresh from this phase**:
+- [ ] Implement `js/storage.js` for JSON-based stat persistence.
+- [ ] Add Difficulty selection menu to UI.
+- [ ] Finalize Inter font and typography.
+- [ ] Implement quick restart (Space/R keys) and long-press reset.
+- [ ] Stub `highContrast: false` in the initial storage schema.
+**Exit criteria for moving items to `DONE.md`**:
+- Stats persist and visual requirements are met.
 
-Requirements for `Risks`:
-- State the actual delivery or regression risks for the phase.
-- If risk is low, say so and explain briefly.
-- If risk is medium or high, identify the main failure modes.
+### Phase 6: Stabilization & Final Review
+**Goal**: Final polish and verification against all Acceptance Criteria.
+**Scope**: Bug fixing and final audit.
+**Expected files to change**:
+- `DONE.md`
+- `TODO.md`
+- `README.md`
+**Dependencies**: All previous phases.
+**Risks**: Low.
+**Tests and checks to run**:
+- Full regression test.
+- Final build/lint check.
+**Review check before moving work to `DONE.md`**:
+- Cross-reference with AC 1-5 in REQUIREMENTS.md.
+**Exact `TODO.md` entries to refresh from this phase**:
+- [ ] Perform final sweep of all game modes.
+- [ ] Verify AC 1-5 fulfillment.
+- [ ] Update `README.md` with final instructions.
+**Exit criteria for moving items to `DONE.md`**:
+- All REQUIREMENTS.md criteria met.
 
-Requirements for `Tests and checks to run`:
-- Include exact checks where possible, for example:
-  - unit tests
-  - integration tests
-  - end-to-end tests
-  - lint
-  - typecheck
-  - format check
-  - build
-  - accessibility checks
-  - smoke tests
-  - manual UX checks
-  - deployment verification
-- If exact commands are unknown, use placeholder command patterns such as:
-  - `npm test`
-  - `npm run lint`
-  - `npm run build`
-  - `pytest`
-  - `cargo test`
-  - `[project test command]`
-- Only include checks relevant to the phase.
+## Dependency notes
+- `js/engine.js` is the primary dependency for `js/ui.js`.
+- Phase 3A (Logic) must be complete and tested before Phase 3B (Animation) starts.
 
-Requirements for `Review check before moving work to \`DONE.md\``:
-- This is a strict gate.
-- Include:
-  - code review concerns
-  - requirement traceability
-  - regression risk review
-  - documentation update check
-  - scope creep check
-  - check that unfinished follow-up work has been written back to `TODO.md`
-- Require the reviewer to confirm that the phase outcome matches the stated goal and scope.
+## Review policy
+- Phases are designed to be completed in 1-3 hour cycles.
+- oversized phases are not allowed; Phase 3 was split specifically to maintain this policy.
 
-Requirements for `Exact \`TODO.md\` entries to refresh from this phase`:
-- Write exact checkbox-ready entries.
-- Keep entries atomic, concrete, and reviewable.
-- Group them under the phase.
-- Each entry must map to a single piece of work that can be verified independently.
-- Do not use vague entries such as:
-  - "finish feature"
-  - "polish app"
-  - "wrap up"
-- Include test, docs, and verification entries when needed.
+## Definition of done for the plan
+The project is complete when:
+- All 3 difficulty modes are playable.
+- First-click death is enabled.
+- "Liquid" animations are smooth and capped.
+- Chording failure leads to Game Over.
+- Stats persist in LocalStorage.
+- Codebase passes lint and tests.
 
-Requirements for `Exit criteria for moving items to \`DONE.md\``:
-- Make each criterion binary and verifiable.
-- Tie each criterion to actual evidence such as:
-  - code present in the expected files
-  - tests passing
-  - build succeeding
-  - review completed
-  - docs updated
-- Do not allow an item to move to `DONE.md` because it is "mostly finished".
-- State what must be true before each related `TODO.md` entry can be moved to `DONE.md`.
-
-Requirements for `Review policy`:
-- Define the expected review size based on the provided review cadence.
-- State when a phase must be split before implementation starts.
-- State that oversized phases are not allowed to proceed unchanged.
-
-Requirements for `Definition of done for the plan`:
-- Define what must be true for the overall project to be considered complete.
-- Include implementation, validation, documentation, and deployment expectations if deployment is in scope.
-
-Requirements for `Open questions`:
-- List unresolved decisions that affect implementation quality or sequencing.
-- Separate non-blocking open questions from blocking unknowns if needed.
-
-Quality bar:
-- Dependency-ordered phases
-- Small enough for one review cycle
-- Clear primary goal per phase
-- Risky work isolated
-- Explicit test gates
-- Explicit review gates
-- Concrete `TODO.md` and `DONE.md` handling
-- Concrete expected file paths or path patterns
-- No accidental scope creep
-
-Silently self-check before finalizing:
-- Are phases dependency-ordered?
-- Is each phase small enough for one review cycle?
-- Does each phase have a clear goal and binary exit criteria?
-- Are risky changes isolated?
-- Are tests and review gates explicit?
-- Are `TODO.md` and `DONE.md` rules concrete?
-- Are file changes concrete enough to guide implementation?
-- Did the plan avoid feature creep?
-
-DO NOT FORGET BUILD STEPS.
-
-ALSO:
-- think deep!
-- check online!
+## Open questions
+- None at this time.
