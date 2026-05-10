@@ -24,7 +24,16 @@ Project rules:
 - Ask before making a large refactor, changing the directory structure, or removing tests.
 - Before moving work to `DONE.md`, review the diff, run the required checks, and update docs if the change affected scope or structure.
 
-## 1. Think Before Coding
+## 1. Technical Guardrails
+
+**Lock in the foundation to prevent architectural drift.**
+
+- **Data Structure:** Use a **1D Flat Array** for all grid state. Do not refactor to 2D arrays or nested objects.
+- **Layout:** Use **CSS Grid** for the board. Avoid `<table>` or float-based layouts.
+- **Performance:** Target 60fps for "Liquid" animations. Use `will-change: transform` only during active animation cycles.
+- **Phase Integrity:** Strictly follow the split between logical expansion (Phase 3A) and animation orchestration (Phase 3B). Verify recursion logic passes unit tests before introducing timing-based animations.
+
+## 2. Think Before Coding
 
 **Don't assume. Don't hide confusion. Surface tradeoffs.**
 
@@ -34,7 +43,7 @@ Before implementing:
 - If a simpler approach exists, say so. Push back when warranted.
 - If something is unclear, stop. Name what's confusing. Ask.
 
-## 2. Simplicity First
+## 3. Simplicity First
 
 **Minimum code that solves the problem. Nothing speculative.**
 
@@ -46,7 +55,7 @@ Before implementing:
 
 Ask yourself: "Would a senior engineer say this is overcomplicated?" If yes, simplify.
 
-## 3. Surgical Changes
+## 4. Surgical Changes
 
 **Touch only what you must. Clean up only your own mess.**
 
@@ -62,7 +71,7 @@ When your changes create orphans:
 
 The test: Every changed line should trace directly to the user's request.
 
-## 4. Goal-Driven Execution
+## 5. Goal-Driven Execution
 
 **Define success criteria. Loop until verified.**
 
