@@ -68,3 +68,11 @@ The player must reveal all tiles on a grid that do not contain a naval mine. Suc
 * **AC 3:** Faulty chording results in immediate Game Over.
 * **AC 4:** Personal Bests persist across sessions.
 * **AC 5:** Fully functional on mobile viewports via Flag Toggle.
+
+## Project Setup Requirements
+
+- The project shall include a `package.json` file in the repository root.
+- The `package.json` file shall define the project's runnable commands in a consistent way.
+- The `package.json` file shall include at least a `test` script so the same test command can be run every time.
+- If the project uses ES module imports in JavaScript, `package.json` shall set `"type": "module"`.
+- The project shall remain compatible with a plain JavaScript, static-site workflow.
