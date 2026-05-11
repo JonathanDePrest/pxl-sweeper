@@ -38,6 +38,8 @@ Project rules:
 - **Phase 2 Integrity:** Decouple mine generation and neighbor counting from UI rendering. Ensure `js/engine.js` is fully testable without a DOM. "Hardcore Start" means mines must be generated BEFORE any user interaction.
 - **Phase 3A Integrity:** Recursive flood fill must be purely logical and return a list of affected indices. It MUST NOT trigger UI updates or animations directly. Win condition check must be performed after every tile reveal.
 - **Phase 3B Integrity:** Animations must be orchestrated using Chebyshev distance from the click origin. Staggered delays must be capped at 15 "waves" to ensure performance on large boards. UI state transitions must remain consistent even if animations are interrupted or skipped.
+- **Phase 4 Integrity:** Chording logic must strictly enforce the "excessive flags = game over" rule. Ensure chording triggers the same Chebyshev-based animation system as standard reveals for visual consistency.
+- **Input Handling:** Support both Right-Click (desktop) and Toggle-Click (mobile) for flagging. Prevent default browser context menus on the game board to ensure a dedicated game interaction layer.
 
 ## 2. Think Before Coding
 
