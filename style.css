@@ -7,6 +7,16 @@
     --bg-color: #f8f9fa;
     --accent-color: #e74c3c;
     --text-color: #2d3436;
+    
+    /* Number Colors */
+    --color-1: #0984e3;
+    --color-2: #27ae60;
+    --color-3: #d63031;
+    --color-4: #6c5ce7;
+    --color-5: #a29bfe;
+    --color-6: #00cec9;
+    --color-7: #d35400; /* Darker orange for better contrast */
+    --color-8: #2d3436;
 }
 
 body {
@@ -117,6 +127,15 @@ body {
     cursor: default;
     animation: pxl-pop 200ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
+
+.tile.n1 { color: var(--color-1); }
+.tile.n2 { color: var(--color-2); }
+.tile.n3 { color: var(--color-3); }
+.tile.n4 { color: var(--color-4); }
+.tile.n5 { color: var(--color-5); }
+.tile.n6 { color: var(--color-6); }
+.tile.n7 { color: var(--color-7); }
+.tile.n8 { color: var(--color-8); }
 
 .tile.flagged {
     background-color: #b2bec3;

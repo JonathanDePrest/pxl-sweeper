@@ -14,13 +14,15 @@ const DEFAULT_DATA = {
 export function getStats() {
   try {
     const data = localStorage.getItem(STORAGE_KEY);
-    if (!data) return DEFAULT_DATA;
+    // Deep clone defaults to avoid mutation pollution
+    const defaults = JSON.parse(JSON.stringify(DEFAULT_DATA));
+    
+    if (!data) return defaults;
     
     const parsed = JSON.parse(data);
-    // Merge with defaults to ensure schema completeness
     return {
-      stats: { ...DEFAULT_DATA.stats, ...parsed.stats },
-      settings: { ...DEFAULT_DATA.settings, ...parsed.settings }
+      stats: { ...defaults.stats, ...parsed.stats },
+      settings: { ...defaults.settings, ...parsed.settings }
     };
   } catch (e) {
     console.error('Failed to load stats:', e);
