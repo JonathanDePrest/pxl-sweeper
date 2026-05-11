@@ -125,6 +125,26 @@ test('floodFill expansion', () => {
   }
 });
 
+test('floodFill handles already revealed start tile', () => {
+  const width = 3;
+  const height = 3;
+  const mines = new Uint8Array(9).fill(0);
+  const counts = new Int8Array(9).fill(0);
+  const states = new Uint8Array(9).fill(TILE_STATES.HIDDEN);
+  
+  // Simulate revealTile(0)
+  states[0] = TILE_STATES.REVEALED;
+  
+  // Call floodFill on already revealed tile
+  const changed = floodFill(0, mines, counts, states, width, height);
+  
+  // It should still expand to neighbors
+  // Even if it doesn't include 0 in 'changed' (since it was already changed),
+  // it MUST change the neighbors.
+  assert.ok(changed.length > 0, 'Should reveal neighbors');
+  assert.strictEqual(states[1], TILE_STATES.REVEALED);
+});
+
 test('checkWin logic', () => {
   const mineCount = 1;
   const states = new Uint8Array([TILE_STATES.REVEALED, TILE_STATES.HIDDEN]);

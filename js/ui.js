@@ -40,11 +40,11 @@ function handleTileClick(e) {
   if (states[index] !== TILE_STATES.HIDDEN) return;
   
   const result = revealTile(index, mines, states);
-  let changedIndices = result.changed;
+  let changedIndices = [...result.changed];
   
   if (!result.gameOver && counts[index] === 0) {
     const expanded = floodFill(index, mines, counts, states, cols, rows);
-    changedIndices = expanded;
+    changedIndices = Array.from(new Set([...changedIndices, ...expanded]));
   }
   
   updateUI(changedIndices);

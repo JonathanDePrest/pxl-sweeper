@@ -75,22 +75,26 @@ export function revealTile(index, mines, states) {
 }
 
 export function floodFill(index, mines, counts, states, width, height) {
-  if (states[index] !== TILE_STATES.HIDDEN || mines[index] === 1) {
+  if (mines[index] === 1) {
     return [];
   }
   
   const changed = [];
   const stack = [index];
+  const processed = new Set();
   
   while (stack.length > 0) {
     const currIndex = stack.pop();
     
-    if (states[currIndex] !== TILE_STATES.HIDDEN) continue;
+    if (processed.has(currIndex)) continue;
+    processed.add(currIndex);
     
-    states[currIndex] = TILE_STATES.REVEALED;
-    changed.push(currIndex);
+    if (states[currIndex] === TILE_STATES.HIDDEN) {
+      states[currIndex] = TILE_STATES.REVEALED;
+      changed.push(currIndex);
+    }
     
-    // If it's an empty tile, expand to neighbors
+    // Expand if it's an empty tile
     if (counts[currIndex] === 0) {
       const { x, y } = indexToXY(currIndex, width);
       
@@ -103,7 +107,9 @@ export function floodFill(index, mines, counts, states, width, height) {
           
           if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
             const nIndex = XYToIndex(nx, ny, width);
-            if (states[nIndex] === TILE_STATES.HIDDEN && mines[nIndex] === 0) {
+            // Add to stack if it's hidden or if it's already revealed but needs expansion 
+            // (the starting index case).
+            if (states[nIndex] === TILE_STATES.HIDDEN || nIndex === index) {
               stack.push(nIndex);
             }
           }
