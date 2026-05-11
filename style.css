@@ -1,7 +1,84 @@
+@import url('https://rsms.me/inter/inter.css');
+
 :root {
     --cols: 9;
     --rows: 9;
     --tile-size: 32px;
+    --bg-color: #f8f9fa;
+    --accent-color: #e74c3c;
+    --text-color: #2d3436;
+}
+
+body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    margin: 0;
+}
+
+#header {
+    width: 100%;
+    max-width: calc(var(--cols) * var(--tile-size) + 40px);
+    margin-bottom: 20px;
+}
+
+#stats-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #eee;
+    padding: 10px 20px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+#timer {
+    color: var(--accent-color);
+    font-size: 1.2rem;
+}
+
+#difficulty-select {
+    padding: 5px 10px;
+    font-family: inherit;
+    font-weight: 600;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    background-color: white;
+    cursor: pointer;
+}
+
+#best-time {
+    font-size: 0.9rem;
+    color: #636e72;
+}
+
+#controls {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+#flag-toggle, #reset-button {
+    padding: 8px 16px;
+    font-family: inherit;
+    font-weight: bold;
+    cursor: pointer;
+    background-color: #eee;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+#flag-toggle.active {
+    background-color: var(--accent-color);
+    color: white;
+    border-color: #c0392b;
 }
 
 #game-board {
@@ -9,46 +86,59 @@
     grid-template-columns: repeat(var(--cols), var(--tile-size));
     grid-template-rows: repeat(var(--rows), var(--tile-size));
     gap: 2px;
-    background-color: #eee;
+    background-color: #dfe6e9;
     padding: 2px;
     width: fit-content;
-    margin: 20px auto;
+    border-radius: 4px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
 .tile {
     width: var(--tile-size);
     height: var(--tile-size);
-    background-color: #ccc;
+    background-color: #b2bec3;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: sans-serif;
-    font-weight: bold;
+    font-weight: 900;
+    font-size: 1.1rem;
     cursor: pointer;
     user-select: none;
+    border-radius: 2px;
+    transition: background-color 0.1s ease;
 }
 
 .tile:hover {
-    background-color: #bbb;
+    background-color: #a2adb3;
 }
 
 .tile.revealed {
-    background-color: #fff;
+    background-color: #fdfdfd;
     cursor: default;
     animation: pxl-pop 200ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .tile.flagged {
-    background-color: #ccc;
-    color: #e74c3c;
+    background-color: #b2bec3;
+    color: var(--accent-color);
 }
 
 .tile.exploded {
-    background-color: #f00;
+    background-color: var(--accent-color);
+    color: white;
     animation: pxl-pop 200ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-#game-board.flag-mode {
+#reset-button:hover, #flag-toggle:not(.active):hover {
+    background-color: #e2e2e2;
+}
+
+#reset-button:active {
+    transform: scale(0.95);
+}
+
+@keyframes pxl-pop {
+
     border: 4px solid #e74c3c;
     padding: 0; /* Adjust padding to accommodate border without shifting layout too much */
 }

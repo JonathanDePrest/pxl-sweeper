@@ -7,8 +7,20 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="controls">
-        <button id="flag-toggle">Flag Mode: OFF</button>
+    <div id="header">
+        <div id="stats-bar">
+            <span id="timer">000</span>
+            <select id="difficulty-select">
+                <option value="BEGINNER">Beginner</option>
+                <option value="INTERMEDIATE">Intermediate</option>
+                <option value="EXPERT">Expert</option>
+            </select>
+            <span id="best-time">Best: ---</span>
+        </div>
+        <div id="controls">
+            <button id="flag-toggle">Flag Mode: OFF</button>
+            <button id="reset-button">Reset</button>
+        </div>
     </div>
     <div id="game-board"></div>
     <script type="module" src="js/ui.js"></script>

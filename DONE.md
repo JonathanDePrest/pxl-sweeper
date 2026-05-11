@@ -33,3 +33,10 @@
 - Added visual feedback for Flag Mode (board border shift) and flagged tiles.
 - Verified all chording scenarios (success, mine-hit, excessive flags) with unit tests.
 
+## Phase 5: Persistence & UI Refinement
+- Developed `js/storage.js` for JSON-based local persistence of stats and settings.
+- Integrated a difficulty selection menu for seamless switching between game modes.
+- Implemented a game timer and best-time tracking system.
+- Added "Quick Restart" keyboard shortcuts (Space/R) and a dedicated Reset button.
+- Refined the visual design with Inter font, high-contrast typography, and a modern "flat" aesthetic.
+

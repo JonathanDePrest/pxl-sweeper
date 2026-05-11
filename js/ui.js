@@ -1,23 +1,42 @@
-import { DIFFICULTIES, TILE_STATES, WAVE_DELAY, ANIMATION_WAVE_CAP } from './constants.js';
+import { DIFFICULTIES, TILE_STATES, WAVE_DELAY, ANIMATION_WAVE_CAP, NUMBER_COLORS } from './constants.js';
 import { generateMines, calculateNeighbors, revealTile, floodFill, checkWin, getChebyshevDistance, chordTile } from './engine.js';
+import { getStats, saveGame } from './storage.js';
 
-let currentDifficulty = DIFFICULTIES.BEGINNER;
+let currentDifficultyKey = 'BEGINNER';
+let currentDifficulty = DIFFICULTIES[currentDifficultyKey];
 let mines, counts, states;
 let isFlagModeActive = false;
+let gameStarted = false;
+let gameOver = false;
+let timerInterval = null;
+let startTime = 0;
+let timeElapsed = 0;
 
 const gameBoard = document.getElementById('game-board');
 const flagToggle = document.getElementById('flag-toggle');
+const difficultySelect = document.getElementById('difficulty-select');
+const resetButton = document.getElementById('reset-button');
+const timerDisplay = document.getElementById('timer');
+const bestTimeDisplay = document.getElementById('best-time');
 
 function initGame() {
   const { rows, cols, mines: mineCount } = currentDifficulty;
   const totalCells = rows * cols;
   
+  // Reset engine state
   mines = generateMines(mineCount, totalCells);
   counts = calculateNeighbors(mines, cols, rows);
   states = new Uint8Array(totalCells).fill(TILE_STATES.HIDDEN);
   
+  // Reset UI state
+  gameStarted = false;
+  gameOver = false;
   isFlagModeActive = false;
+  timeElapsed = 0;
+  updateTimerDisplay();
+  stopTimer();
   updateFlagModeUI();
+  updateBestTimeDisplay();
   
   renderGrid();
 }
@@ -33,6 +52,49 @@ function updateFlagModeUI() {
     gameBoard.classList.remove('flag-mode');
   }
 }
+
+function updateTimerDisplay() {
+  timerDisplay.textContent = timeElapsed.toString().padStart(3, '0');
+}
+
+function startTimer() {
+  if (timerInterval) return;
+  startTime = Date.now();
+  timerInterval = setInterval(() => {
+    timeElapsed = Math.floor((Date.now() - startTime) / 1000);
+    if (timeElapsed > 999) timeElapsed = 999;
+    updateTimerDisplay();
+  }, 1000);
+}
+
+function stopTimer() {
+  clearInterval(timerInterval);
+  timerInterval = null;
+}
+
+function updateBestTimeDisplay() {
+  const stats = getStats().stats[currentDifficultyKey];
+  if (stats && stats.bestTime !== null) {
+    bestTimeDisplay.textContent = `Best: ${stats.bestTime.toString().padStart(3, '0')}`;
+  } else {
+    bestTimeDisplay.textContent = 'Best: ---';
+  }
+}
+
+difficultySelect.addEventListener('change', (e) => {
+  currentDifficultyKey = e.target.value;
+  currentDifficulty = DIFFICULTIES[currentDifficultyKey];
+  initGame();
+});
+
+resetButton.addEventListener('click', initGame);
+
+// Keyboard shortcuts
+window.addEventListener('keydown', (e) => {
+  if (e.key.toLowerCase() === 'r' || e.code === 'Space') {
+    initGame();
+  }
+});
 
 flagToggle.addEventListener('click', () => {
   isFlagModeActive = !isFlagModeActive;
@@ -58,6 +120,7 @@ function renderGrid() {
 
 function handleRightClick(e) {
   e.preventDefault();
+  if (gameOver) return;
   const index = parseInt(e.target.dataset.index);
   toggleFlag(index);
 }
@@ -70,28 +133,26 @@ function toggleFlag(index) {
 }
 
 function handleTileClick(e) {
+  if (gameOver) return;
+  
   const index = parseInt(e.target.dataset.index);
   const { rows, cols, mines: mineCount } = currentDifficulty;
   
-  if (states[index] === TILE_STATES.EXPLODED) return;
+  // Start timer on first valid interaction
+  if (!gameStarted && states[index] === TILE_STATES.HIDDEN && !isFlagModeActive) {
+    gameStarted = true;
+    startTimer();
+  }
 
   if (states[index] === TILE_STATES.REVEALED) {
     const result = chordTile(index, mines, counts, states, cols, rows);
     if (result.changed.length > 0 || result.gameOver) {
       if (result.gameOver) {
-        const allMines = [];
-        for (let i = 0; i < mines.length; i++) {
-          if (mines[i] === 1 && states[i] !== TILE_STATES.EXPLODED) {
-            states[i] = TILE_STATES.REVEALED;
-            allMines.push(i);
-          }
-        }
-        animateReveal([...result.changed, ...allMines], index);
-        console.log('Game Over! 💣 (Chord Failure)');
+        handleGameOver(index, result.changed);
       } else {
         animateReveal(result.changed, index);
         if (checkWin(states, mineCount)) {
-          console.log('You Win! 🎉');
+          handleWin();
         }
       }
     }
@@ -114,21 +175,36 @@ function handleTileClick(e) {
   }
   
   if (result.gameOver) {
-    const allMines = [];
-    for (let i = 0; i < mines.length; i++) {
-      if (mines[i] === 1 && i !== index) {
-        states[i] = TILE_STATES.REVEALED;
-        allMines.push(i);
-      }
-    }
-    animateReveal([...result.changed, ...allMines], index);
-    console.log('Game Over! 💣');
+    handleGameOver(index, result.changed);
   } else {
     animateReveal(changedIndices, index);
     if (checkWin(states, mineCount)) {
-      console.log('You Win! 🎉');
+      handleWin();
     }
   }
+}
+
+function handleGameOver(originIndex, changed) {
+  gameOver = true;
+  stopTimer();
+  
+  const allMines = [];
+  for (let i = 0; i < mines.length; i++) {
+    if (mines[i] === 1 && states[i] !== TILE_STATES.EXPLODED) {
+      states[i] = TILE_STATES.REVEALED;
+      allMines.push(i);
+    }
+  }
+  animateReveal([...changed, ...allMines], originIndex);
+  saveGame(currentDifficultyKey, timeElapsed, false);
+}
+
+function handleWin() {
+  gameOver = true;
+  stopTimer();
+  saveGame(currentDifficultyKey, timeElapsed, true);
+  updateBestTimeDisplay();
+  console.log('You Win! 🎉');
 }
 
 function animateReveal(indices, originIndex) {
@@ -154,7 +230,7 @@ function updateUI(indices) {
     const tile = gameBoard.children[index];
     const state = states[index];
     
-    tile.classList.remove('hidden', 'revealed', 'exploded');
+    tile.classList.remove('hidden', 'revealed', 'exploded', 'flagged');
     
     // Manage will-change for performance during animation
     tile.style.willChange = 'transform';
@@ -169,6 +245,9 @@ function updateUI(indices) {
       } else {
         const count = counts[index];
         tile.textContent = count > 0 ? count : '';
+        if (count > 0) {
+          tile.style.color = NUMBER_COLORS[count] || 'black';
+        }
       }
     } else if (state === TILE_STATES.FLAGGED) {
       tile.classList.add('flagged');

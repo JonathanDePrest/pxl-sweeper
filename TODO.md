@@ -34,11 +34,11 @@
 - [x] Add specific test case: Chording with correct flags = Reveal neighbors.
 
 ## Phase 5: Persistence & UI Refinement
-- [ ] Implement `js/storage.js` for JSON-based stat persistence.
-- [ ] Add Difficulty selection menu to UI.
-- [ ] Finalize Inter font and typography.
-- [ ] Implement quick restart (Space/R keys) and long-press reset.
-- [ ] Stub `highContrast: false` in the initial storage schema.
+- [x] Implement `js/storage.js` for JSON-based stat persistence.
+- [x] Add Difficulty selection menu to UI.
+- [x] Finalize Inter font and typography.
+- [x] Implement quick restart (Space/R keys) and long-press reset.
+- [x] Stub `highContrast: false` in the initial storage schema.
 
 ## Phase 6: Stabilization & Final Review
 - [ ] Perform final sweep of all game modes.

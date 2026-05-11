@@ -40,6 +40,8 @@ Project rules:
 - **Phase 3B Integrity:** Animations must be orchestrated using Chebyshev distance from the click origin. Staggered delays must be capped at 15 "waves" to ensure performance on large boards. UI state transitions must remain consistent even if animations are interrupted or skipped.
 - **Phase 4 Integrity:** Chording logic must strictly enforce the "excessive flags = game over" rule. Ensure chording triggers the same Chebyshev-based animation system as standard reveals for visual consistency.
 - **Input Handling:** Support both Right-Click (desktop) and Toggle-Click (mobile) for flagging. Prevent default browser context menus on the game board to ensure a dedicated game interaction layer.
+- **Phase 5 Integrity:** Stats must be persisted as a JSON object in LocalStorage. Use defensive parsing (try/catch) to handle potential storage corruption. Ensure the game timer starts only on the first valid reveal.
+- **Aesthetics:** Adhere to "Modern Minimalism". Use the Inter font, flat UI components, and high-contrast color palettes for game-critical information (number hints).
 
 ## 2. Think Before Coding
 
