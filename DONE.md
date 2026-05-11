@@ -26,3 +26,10 @@
 - Implemented mine ripple reveal on Game Over.
 - Verified distance calculations with comprehensive unit tests.
 
+## Phase 4: Input & Chording System
+- Implemented Right-Click flagging for desktop and a mobile-friendly "Flag Mode" toggle.
+- Developed advanced chording logic with hardcore "excessive flags = death" rule.
+- Integrated chording into the UI with ripple reveal animations.
+- Added visual feedback for Flag Mode (board border shift) and flagged tiles.
+- Verified all chording scenarios (success, mine-hit, excessive flags) with unit tests.
+

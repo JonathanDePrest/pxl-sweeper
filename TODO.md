@@ -27,11 +27,11 @@
 - [x] Verify `will-change` is applied only during active animation cycles.
 
 ## Phase 4: Input & Chording System
-- [ ] Add Right-click event listener for flagging.
-- [ ] Implement "Flag Mode" toggle and border color shift.
-- [ ] Implement chording logic in `js/engine.js`.
-- [ ] Add specific test case: Chording with excessive flags = Game Over.
-- [ ] Add specific test case: Chording with correct flags = Reveal neighbors.
+- [x] Add Right-click event listener for flagging.
+- [x] Implement "Flag Mode" toggle and border color shift.
+- [x] Implement chording logic in `js/engine.js`.
+- [x] Add specific test case: Chording with excessive flags = Game Over.
+- [x] Add specific test case: Chording with correct flags = Reveal neighbors.
 
 ## Phase 5: Persistence & UI Refinement
 - [ ] Implement `js/storage.js` for JSON-based stat persistence.

@@ -38,9 +38,41 @@
     animation: pxl-pop 200ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
+.tile.flagged {
+    background-color: #ccc;
+    color: #e74c3c;
+}
+
 .tile.exploded {
     background-color: #f00;
     animation: pxl-pop 200ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+#game-board.flag-mode {
+    border: 4px solid #e74c3c;
+    padding: 0; /* Adjust padding to accommodate border without shifting layout too much */
+}
+
+#controls {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+#flag-toggle {
+    padding: 8px 16px;
+    font-family: inherit;
+    font-weight: bold;
+    cursor: pointer;
+    background-color: #eee;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+}
+
+#flag-toggle.active {
+    background-color: #e74c3c;
+    color: white;
+    border-color: #c0392b;
 }
 
 @keyframes pxl-pop {

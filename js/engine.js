@@ -136,3 +136,60 @@ export function getChebyshevDistance(idx1, idx2, width) {
   const p2 = indexToXY(idx2, width);
   return Math.max(Math.abs(p1.x - p2.x), Math.abs(p1.y - p2.y));
 }
+
+export function chordTile(index, mines, counts, states, width, height) {
+  if (states[index] !== TILE_STATES.REVEALED || counts[index] === 0) {
+    return { gameOver: false, changed: [] };
+  }
+
+  const { x, y } = indexToXY(index, width);
+  const neighbors = [];
+  let flagCount = 0;
+
+  // 1. Gather neighbors and count flags
+  for (let dy = -1; dy <= 1; dy++) {
+    for (let dx = -1; dx <= 1; dx++) {
+      if (dx === 0 && dy === 0) continue;
+      const nx = x + dx;
+      const ny = y + dy;
+      if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
+        const nIdx = XYToIndex(nx, ny, width);
+        neighbors.push(nIdx);
+        if (states[nIdx] === TILE_STATES.FLAGGED) flagCount++;
+      }
+    }
+  }
+
+  // 2. Evaluate conditions
+  // Requirement: Excessive flags = Game Over
+  if (flagCount > counts[index]) {
+    // Reveal all mines (handled by UI ripple usually, but we mark the state here if needed)
+    // For chording, hitting a mine via excessive flags ends the game immediately.
+    return { gameOver: true, changed: [] };
+  }
+  
+  if (flagCount < counts[index]) return { gameOver: false, changed: [] };
+
+  // 3. Execution (flagCount === counts[index])
+  let gameOver = false;
+  let changed = [];
+
+  for (const nIdx of neighbors) {
+    if (states[nIdx] === TILE_STATES.HIDDEN) {
+      if (mines[nIdx] === 1) {
+        states[nIdx] = TILE_STATES.EXPLODED;
+        gameOver = true;
+        changed.push(nIdx);
+      } else {
+        states[nIdx] = TILE_STATES.REVEALED;
+        changed.push(nIdx);
+        if (counts[nIdx] === 0) {
+          const expanded = floodFill(nIdx, mines, counts, states, width, height);
+          changed.push(...expanded);
+        }
+      }
+    }
+  }
+
+  return { gameOver, changed: Array.from(new Set(changed)) };
+}

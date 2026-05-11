@@ -1,6 +1,6 @@
 import assert from 'node:assert';
 import test from 'node:test';
-import { indexToXY, XYToIndex, generateMines, calculateNeighbors, revealTile, floodFill, checkWin, getChebyshevDistance } from './engine.js';
+import { indexToXY, XYToIndex, generateMines, calculateNeighbors, revealTile, floodFill, checkWin, getChebyshevDistance, chordTile } from './engine.js';
 import { TILE_STATES } from './constants.js';
 
 test('indexToXY mapping', () => {
@@ -174,4 +174,57 @@ test('getChebyshevDistance logic', () => {
   assert.strictEqual(getChebyshevDistance(0, 2, width), 2);
   assert.strictEqual(getChebyshevDistance(0, 18, width), 2);
   assert.strictEqual(getChebyshevDistance(0, 20, width), 2);
+});
+
+test('chordTile logic: success', () => {
+  const width = 3;
+  const height = 3;
+  // 1 1 1
+  // 1 M 1
+  // 1 1 1
+  const mines = new Uint8Array([0, 0, 0, 0, 1, 0, 0, 0, 0]);
+  const counts = calculateNeighbors(mines, width, height);
+  const states = new Uint8Array(9).fill(TILE_STATES.HIDDEN);
+  
+  states[0] = TILE_STATES.REVEALED;
+  states[4] = TILE_STATES.FLAGGED;
+  
+  const result = chordTile(0, mines, counts, states, width, height);
+  assert.strictEqual(result.gameOver, false);
+  assert.ok(result.changed.includes(1));
+  assert.ok(result.changed.includes(3));
+  assert.strictEqual(states[1], TILE_STATES.REVEALED);
+  assert.strictEqual(states[3], TILE_STATES.REVEALED);
+});
+
+test('chordTile logic: excessive flags', () => {
+  const width = 3;
+  const height = 3;
+  const mines = new Uint8Array(9).fill(0);
+  mines[4] = 1;
+  const counts = calculateNeighbors(mines, width, height);
+  const states = new Uint8Array(9).fill(TILE_STATES.HIDDEN);
+  
+  states[0] = TILE_STATES.REVEALED;
+  states[1] = TILE_STATES.FLAGGED;
+  states[3] = TILE_STATES.FLAGGED;
+  
+  const result = chordTile(0, mines, counts, states, width, height);
+  assert.strictEqual(result.gameOver, true);
+});
+
+test('chordTile logic: hit mine', () => {
+  const width = 3;
+  const height = 3;
+  const mines = new Uint8Array(9).fill(0);
+  mines[1] = 1;
+  const counts = calculateNeighbors(mines, width, height);
+  const states = new Uint8Array(9).fill(TILE_STATES.HIDDEN);
+  
+  states[0] = TILE_STATES.REVEALED;
+  states[4] = TILE_STATES.FLAGGED;
+  
+  const result = chordTile(0, mines, counts, states, width, height);
+  assert.strictEqual(result.gameOver, true);
+  assert.strictEqual(states[1], TILE_STATES.EXPLODED);
 });
