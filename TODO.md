@@ -8,8 +8,8 @@
 - [x] Add unit tests for mapping logic in `js/engine.test.js`.
 
 ## Phase 2: Hardcore Gameplay Core
-- [ ] Implement `generateMines(difficulty)` with random distribution.
-- [ ] Implement `calculateNeighbors()` for all tiles.
-- [ ] Create basic `revealTile(index)` logic that triggers Game Over on mine.
-- [ ] Build `js/ui.js` to dynamically inject tiles into the CSS Grid.
-- [ ] Verify "Hardcore Start" by ensuring mines are placed BEFORE the first interaction.
+- [x] Implement `generateMines(difficulty)` with random distribution.
+- [x] Implement `calculateNeighbors()` for all tiles.
+- [x] Create basic `revealTile(index)` logic that triggers Game Over on mine.
+- [x] Build `js/ui.js` to dynamically inject tiles into the CSS Grid.
+- [x] Verify "Hardcore Start" by ensuring mines are placed BEFORE the first interaction.

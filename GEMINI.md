@@ -34,6 +34,7 @@ Project rules:
 - **Testing:** Use the **Node.js native test runner** (`node --test`) for unit tests. Avoid adding heavy test frameworks like Jest or Vitest unless requested.
 - **Performance:** Target 60fps for "Liquid" animations. Use `will-change: transform` only during active animation cycles.
 - **Phase Integrity:** Strictly follow the split between logical expansion (Phase 3A) and animation orchestration (Phase 3B). Verify recursion logic passes unit tests before introducing timing-based animations.
+- **Phase 2 Integrity:** Decouple mine generation and neighbor counting from UI rendering. Ensure `js/engine.js` is fully testable without a DOM. "Hardcore Start" means mines must be generated BEFORE any user interaction.
 
 ## 2. Think Before Coding
 

@@ -14,3 +14,29 @@
     width: fit-content;
     margin: 20px auto;
 }
+
+.tile {
+    width: var(--tile-size);
+    height: var(--tile-size);
+    background-color: #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: sans-serif;
+    font-weight: bold;
+    cursor: pointer;
+    user-select: none;
+}
+
+.tile:hover {
+    background-color: #bbb;
+}
+
+.tile.revealed {
+    background-color: #fff;
+    cursor: default;
+}
+
+.tile.exploded {
+    background-color: #f00;
+}
