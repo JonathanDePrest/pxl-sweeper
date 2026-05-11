@@ -197,6 +197,7 @@ function handleGameOver(originIndex, changed) {
   }
   animateReveal([...changed, ...allMines], originIndex);
   saveGame(currentDifficultyKey, timeElapsed, false);
+  console.log('Game Over! 💣');
 }
 
 function handleWin() {

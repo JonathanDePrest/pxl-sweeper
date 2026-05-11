@@ -41,6 +41,6 @@
 - [x] Stub `highContrast: false` in the initial storage schema.
 
 ## Phase 6: Stabilization & Final Review
-- [ ] Perform final sweep of all game modes.
-- [ ] Verify AC 1-5 fulfillment.
-- [ ] Update `README.md` with final instructions.
+- [x] Perform final sweep of all game modes.
+- [x] Verify AC 1-5 fulfillment.
+- [x] Update `README.md` with final instructions.
