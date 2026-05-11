@@ -1,5 +1,5 @@
-import { DIFFICULTIES, TILE_STATES } from './constants.js';
-import { generateMines, calculateNeighbors, revealTile, floodFill, checkWin } from './engine.js';
+import { DIFFICULTIES, TILE_STATES, WAVE_DELAY, ANIMATION_WAVE_CAP } from './constants.js';
+import { generateMines, calculateNeighbors, revealTile, floodFill, checkWin, getChebyshevDistance } from './engine.js';
 
 let currentDifficulty = DIFFICULTIES.BEGINNER;
 let mines, counts, states;
@@ -47,13 +47,40 @@ function handleTileClick(e) {
     changedIndices = Array.from(new Set([...changedIndices, ...expanded]));
   }
   
-  updateUI(changedIndices);
-  
   if (result.gameOver) {
+    const allMines = [];
+    for (let i = 0; i < mines.length; i++) {
+      if (mines[i] === 1 && i !== index) {
+        states[i] = TILE_STATES.REVEALED;
+        allMines.push(i);
+      }
+    }
+    animateReveal([...result.changed, ...allMines], index);
     console.log('Game Over! 💣');
-  } else if (checkWin(states, mineCount)) {
-    console.log('You Win! 🎉');
+  } else {
+    animateReveal(changedIndices, index);
+    if (checkWin(states, mineCount)) {
+      console.log('You Win! 🎉');
+    }
   }
+}
+
+function animateReveal(indices, originIndex) {
+  const { cols } = currentDifficulty;
+  const groups = new Map();
+
+  indices.forEach(idx => {
+    const d = getChebyshevDistance(originIndex, idx, cols);
+    const wave = Math.min(d, ANIMATION_WAVE_CAP);
+    if (!groups.has(wave)) groups.set(wave, []);
+    groups.get(wave).push(idx);
+  });
+
+  groups.forEach((groupIndices, wave) => {
+    setTimeout(() => {
+      updateUI(groupIndices);
+    }, wave * WAVE_DELAY);
+  });
 }
 
 function updateUI(indices) {
@@ -63,10 +90,20 @@ function updateUI(indices) {
     
     tile.classList.remove('hidden', 'revealed', 'exploded');
     
+    // Manage will-change for performance during animation
+    tile.style.willChange = 'transform';
+    tile.addEventListener('animationend', () => {
+      tile.style.willChange = 'auto';
+    }, { once: true });
+
     if (state === TILE_STATES.REVEALED) {
       tile.classList.add('revealed');
-      const count = counts[index];
-      tile.textContent = count > 0 ? count : '';
+      if (mines[index] === 1) {
+        tile.textContent = '💣';
+      } else {
+        const count = counts[index];
+        tile.textContent = count > 0 ? count : '';
+      }
     } else if (state === TILE_STATES.EXPLODED) {
       tile.classList.add('exploded');
       tile.textContent = '💣';

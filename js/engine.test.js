@@ -1,6 +1,6 @@
 import assert from 'node:assert';
 import test from 'node:test';
-import { indexToXY, XYToIndex, generateMines, calculateNeighbors, revealTile, floodFill, checkWin } from './engine.js';
+import { indexToXY, XYToIndex, generateMines, calculateNeighbors, revealTile, floodFill, checkWin, getChebyshevDistance } from './engine.js';
 import { TILE_STATES } from './constants.js';
 
 test('indexToXY mapping', () => {
@@ -155,4 +155,23 @@ test('checkWin logic', () => {
   // Both hidden
   const states2 = new Uint8Array([TILE_STATES.HIDDEN, TILE_STATES.HIDDEN]);
   assert.strictEqual(checkWin(states2, mineCount), false);
+});
+
+test('getChebyshevDistance logic', () => {
+  const width = 9;
+  
+  // Same index
+  assert.strictEqual(getChebyshevDistance(0, 0, width), 0);
+  
+  // Adjacent orthogonal
+  assert.strictEqual(getChebyshevDistance(0, 1, width), 1);
+  assert.strictEqual(getChebyshevDistance(0, 9, width), 1);
+  
+  // Adjacent diagonal
+  assert.strictEqual(getChebyshevDistance(0, 10, width), 1);
+  
+  // Distance 2
+  assert.strictEqual(getChebyshevDistance(0, 2, width), 2);
+  assert.strictEqual(getChebyshevDistance(0, 18, width), 2);
+  assert.strictEqual(getChebyshevDistance(0, 20, width), 2);
 });

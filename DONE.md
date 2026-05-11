@@ -19,3 +19,10 @@
 - Verified win/loss transitions via console/logic.
 - Added unit tests for complex expansion scenarios and board boundaries.
 
+## Phase 3B: Ripple Orchestration
+- Implemented Chebyshev distance-based "Liquid" animation system.
+- Developed a staggered animation queue with a 15-wave performance cap.
+- Integrated high-performance CSS animations with dynamic `will-change` management.
+- Implemented mine ripple reveal on Game Over.
+- Verified distance calculations with comprehensive unit tests.
+

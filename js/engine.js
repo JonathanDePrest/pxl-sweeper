@@ -130,3 +130,9 @@ export function checkWin(states, mineCount) {
   }
   return hiddenCount === mineCount;
 }
+
+export function getChebyshevDistance(idx1, idx2, width) {
+  const p1 = indexToXY(idx1, width);
+  const p2 = indexToXY(idx2, width);
+  return Math.max(Math.abs(p1.x - p2.x), Math.abs(p1.y - p2.y));
+}

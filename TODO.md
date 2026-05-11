@@ -20,11 +20,11 @@
 - [x] Add unit tests for expansion and win detection.
 
 ## Phase 3B: Ripple Orchestration
-- [ ] Implement `getChebyshevDistance(origin, target)` helper.
-- [ ] Create `animateRevealQueue()` to stagger tile pops based on distance.
-- [ ] Add CSS transitions/animations for the "pop" effect.
-- [ ] Implement the 15-wave animation cap (stagger ends, remaining reveal instantly).
-- [ ] Verify `will-change` is applied only during active animation cycles.
+- [x] Implement `getChebyshevDistance(origin, target)` helper.
+- [x] Create `animateRevealQueue()` to stagger tile pops based on distance.
+- [x] Add CSS transitions/animations for the "pop" effect.
+- [x] Implement the 15-wave animation cap (stagger ends, remaining reveal instantly).
+- [x] Verify `will-change` is applied only during active animation cycles.
 
 ## Phase 4: Input & Chording System
 - [ ] Add Right-click event listener for flagging.

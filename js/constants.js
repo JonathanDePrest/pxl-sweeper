@@ -10,3 +10,6 @@ export const TILE_STATES = {
   FLAGGED: 2,
   EXPLODED: 3
 };
+
+export const WAVE_DELAY = 60;
+export const ANIMATION_WAVE_CAP = 15;
