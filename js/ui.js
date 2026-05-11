@@ -1,5 +1,5 @@
 import { DIFFICULTIES, TILE_STATES } from './constants.js';
-import { generateMines, calculateNeighbors, revealTile } from './engine.js';
+import { generateMines, calculateNeighbors, revealTile, floodFill, checkWin } from './engine.js';
 
 let currentDifficulty = DIFFICULTIES.BEGINNER;
 let mines, counts, states;
@@ -35,13 +35,24 @@ function renderGrid() {
 
 function handleTileClick(e) {
   const index = parseInt(e.target.dataset.index);
-  const result = revealTile(index, mines, states);
+  const { rows, cols, mines: mineCount } = currentDifficulty;
   
-  updateUI(result.changed);
+  if (states[index] !== TILE_STATES.HIDDEN) return;
+  
+  const result = revealTile(index, mines, states);
+  let changedIndices = result.changed;
+  
+  if (!result.gameOver && counts[index] === 0) {
+    const expanded = floodFill(index, mines, counts, states, cols, rows);
+    changedIndices = expanded;
+  }
+  
+  updateUI(changedIndices);
   
   if (result.gameOver) {
-    // Basic Game Over for Phase 2
-    console.log('Game Over!');
+    console.log('Game Over! 💣');
+  } else if (checkWin(states, mineCount)) {
+    console.log('You Win! 🎉');
   }
 }
 

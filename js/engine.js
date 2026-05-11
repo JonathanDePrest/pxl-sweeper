@@ -73,3 +73,54 @@ export function revealTile(index, mines, states) {
   states[index] = TILE_STATES.REVEALED;
   return { gameOver: false, changed: [index] };
 }
+
+export function floodFill(index, mines, counts, states, width, height) {
+  if (states[index] !== TILE_STATES.HIDDEN || mines[index] === 1) {
+    return [];
+  }
+  
+  const changed = [];
+  const stack = [index];
+  
+  while (stack.length > 0) {
+    const currIndex = stack.pop();
+    
+    if (states[currIndex] !== TILE_STATES.HIDDEN) continue;
+    
+    states[currIndex] = TILE_STATES.REVEALED;
+    changed.push(currIndex);
+    
+    // If it's an empty tile, expand to neighbors
+    if (counts[currIndex] === 0) {
+      const { x, y } = indexToXY(currIndex, width);
+      
+      for (let dy = -1; dy <= 1; dy++) {
+        for (let dx = -1; dx <= 1; dx++) {
+          if (dx === 0 && dy === 0) continue;
+          
+          const nx = x + dx;
+          const ny = y + dy;
+          
+          if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
+            const nIndex = XYToIndex(nx, ny, width);
+            if (states[nIndex] === TILE_STATES.HIDDEN && mines[nIndex] === 0) {
+              stack.push(nIndex);
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  return changed;
+}
+
+export function checkWin(states, mineCount) {
+  let hiddenCount = 0;
+  for (let i = 0; i < states.length; i++) {
+    if (states[i] === TILE_STATES.HIDDEN || states[i] === TILE_STATES.FLAGGED) {
+      hiddenCount++;
+    }
+  }
+  return hiddenCount === mineCount;
+}

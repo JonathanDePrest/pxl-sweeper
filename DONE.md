@@ -12,3 +12,10 @@
 - Verified "Hardcore Start" (mines generated pre-interaction) and basic Game Over logic.
 - Added comprehensive unit tests for all new engine functions.
 
+## Phase 3A: Instant Flood Fill
+- Implemented iterative, stack-based `floodFill` algorithm for safe area expansion.
+- Developed `checkWin` logic based on revealed tile count.
+- Integrated expansion logic into the UI layer.
+- Verified win/loss transitions via console/logic.
+- Added unit tests for complex expansion scenarios and board boundaries.
+

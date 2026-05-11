@@ -1,6 +1,6 @@
 import assert from 'node:assert';
 import test from 'node:test';
-import { indexToXY, XYToIndex, generateMines, calculateNeighbors, revealTile } from './engine.js';
+import { indexToXY, XYToIndex, generateMines, calculateNeighbors, revealTile, floodFill, checkWin } from './engine.js';
 import { TILE_STATES } from './constants.js';
 
 test('indexToXY mapping', () => {
@@ -95,4 +95,44 @@ test('revealTile basic logic', () => {
   assert.strictEqual(result2.gameOver, true);
   assert.deepStrictEqual(result2.changed, [1]);
   assert.strictEqual(states[1], TILE_STATES.EXPLODED);
+});
+
+test('floodFill expansion', () => {
+  const width = 3;
+  const height = 3;
+  // Grid:
+  // 1 1 1
+  // 1 M 1
+  // 1 1 1
+  // If we click (0,0), it's a "1", so no expansion.
+  const mines = new Uint8Array([0, 0, 0, 0, 1, 0, 0, 0, 0]);
+  const counts = calculateNeighbors(mines, width, height);
+  const states = new Uint8Array(9).fill(TILE_STATES.HIDDEN);
+  
+  const changed1 = floodFill(0, mines, counts, states, width, height);
+  assert.strictEqual(changed1.length, 1);
+  assert.strictEqual(states[0], TILE_STATES.REVEALED);
+  
+  // Mock a situation where (0,0) is "0"
+  const mines2 = new Uint8Array([0, 0, 0, 0, 0, 0, 0, 0, 0]);
+  const counts2 = new Int8Array(9).fill(0);
+  const states2 = new Uint8Array(9).fill(TILE_STATES.HIDDEN);
+  
+  const changed2 = floodFill(0, mines2, counts2, states2, width, height);
+  assert.strictEqual(changed2.length, 9); // All revealed
+  for (let i = 0; i < 9; i++) {
+    assert.strictEqual(states2[i], TILE_STATES.REVEALED);
+  }
+});
+
+test('checkWin logic', () => {
+  const mineCount = 1;
+  const states = new Uint8Array([TILE_STATES.REVEALED, TILE_STATES.HIDDEN]);
+  
+  // One tile revealed, one hidden (the mine)
+  assert.strictEqual(checkWin(states, mineCount), true);
+  
+  // Both hidden
+  const states2 = new Uint8Array([TILE_STATES.HIDDEN, TILE_STATES.HIDDEN]);
+  assert.strictEqual(checkWin(states2, mineCount), false);
 });
